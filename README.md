@@ -55,7 +55,7 @@ python3 sync_leetcode_to_github.py --from-jsonl accepted.jsonl
 git push origin main
 ```
 
-Your contribution graph updates within a few minutes.
+Your contribution graph may take a while to update after pushing — in my case it took about **2 hours** before the green squares appeared.
 
 ## Backfill a specific date range
 
@@ -98,7 +98,7 @@ git push
 
 - Commits count on your graph when pushed to the repo's **default branch** and the commit email matches a **verified email** on your GitHub account.
 - For private repos, enable **"Include private contributions on my profile"** in GitHub profile settings.
-- The graph can take a few minutes to update after pushing.
+- The graph can take a while to update after pushing — often a few minutes, but sometimes **1–2 hours** (especially after a large backfill of historical commits).
 
 ## Contribution graph honesty
 
@@ -128,7 +128,7 @@ This tool creates commits with historical dates that match your real LeetCode ac
 
 ## Make sure your commits actually show up
 
-After pushing, GitHub can take a few minutes to update your graph. If it still doesn't show after 10–15 minutes, check these:
+After pushing, GitHub can take a while to refresh your graph. Give it at least **1–2 hours** before assuming something is wrong — a large backfill of backdated commits can be slow to propagate. If it still doesn't show after that, check these:
 
 **1. Email mismatch (most common)**
 Run `git config user.email` — the output must exactly match a verified email in your [GitHub Email Settings](https://github.com/settings/emails). If it doesn't, either add that email to GitHub or update your local config:
