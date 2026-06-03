@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+
+accepted.jsonl
+*.jsonl
+.leetcode_synced_ids.json
+leetcode-submissions/
+
+.env
+*.log
+*.bak
