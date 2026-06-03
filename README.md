@@ -9,6 +9,7 @@ Mirror your own LeetCode accepted submissions into a Git repository with histori
 - Exports them to a portable `accepted.jsonl` file
 - Creates one Git commit per submission, dated to the original submission time
 - Deduplicates across runs via `.leetcode_synced_ids.json`
+- Optionally runs on a daily schedule via GitHub Actions (no browser needed)
 
 ## What it does NOT do
 
@@ -124,6 +125,56 @@ This tool creates commits with historical dates that match your real LeetCode ac
 
 **Rate limited (429)**
 - The script automatically waits 60 seconds and retries. If it persists, increase `--sleep`.
+
+## Make sure your commits actually show up
+
+After pushing, GitHub can take a few minutes to update your graph. If it still doesn't show after 10–15 minutes, check these:
+
+**1. Email mismatch (most common)**
+Run `git config user.email` — the output must exactly match a verified email in your [GitHub Email Settings](https://github.com/settings/emails). If it doesn't, either add that email to GitHub or update your local config:
+```bash
+git config user.email "your-github-email@example.com"
+```
+Then re-run the sync and push again. GitHub retroactively credits commits once the email is verified.
+
+**2. Wrong branch**
+GitHub only counts commits on your repo's default branch (`main` or `master`). Confirm with `git branch` that you're on `main` before pushing.
+
+**3. Private repo**
+If this repo is private, go to your GitHub profile → Contribution settings → check **Include private contributions on my profile**.
+
+**4. Forked repo**
+Commits in a fork don't count unless merged upstream. Use a repo you own outright (not a fork).
+
+**5. Timezone cutoff**
+GitHub uses UTC for day boundaries. A commit timestamped at 11 PM your local time may appear on the next UTC day in your graph — this is expected.
+
+## Automated sync via GitHub Actions
+
+A workflow at `.github/workflows/sync.yml` runs the sync on a daily cron schedule (6 AM UTC by default) and can also be triggered manually from the Actions tab.
+
+**How it works:** The workflow calls `sync_leetcode_to_github.py` directly using your LeetCode session cookie stored as a GitHub secret — no browser/Playwright needed. It commits any new submissions (with their original timestamps) and pushes to `main`.
+
+**Recommended setup:** Use this workflow in the repo where you want mirrored commits to land — typically a **private** repo you own, not a public fork of this tool.
+
+**One-time setup:**
+
+1. Go to your repo → **Settings → Secrets and variables → Actions → New repository secret** and add:
+
+   | Secret name | Value |
+   |---|---|
+   | `LEETCODE_SESSION` | Your `LEETCODE_SESSION` cookie value from leetcode.com |
+   | `LEETCODE_CSRFTOKEN` | Your `csrftoken` cookie value (optional but recommended) |
+   | `GIT_EMAIL` | The email verified on your GitHub account (must match for graph credit) |
+   | `GIT_NAME` | Your name (e.g. `jeremyky`) |
+
+2. To find your cookie values: log into leetcode.com → open DevTools → Application → Cookies → copy `LEETCODE_SESSION` and `csrftoken`.
+
+3. Enable the workflow under the **Actions** tab if prompted.
+
+**The catch:** LeetCode session cookies expire every few weeks. When the workflow starts failing with a 403, grab a fresh cookie from your browser and update the `LEETCODE_SESSION` secret.
+
+**Adjusting the schedule:** Edit the `cron` line in `.github/workflows/sync.yml`. The format is standard cron — `'0 6 * * *'` means daily at 6 AM UTC. Use [crontab.guru](https://crontab.guru) to build a custom schedule.
 
 ## License
 
